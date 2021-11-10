@@ -21,6 +21,7 @@ class Bot(tweepy.StreamListener):
             # tweepy throws a timeout error every hour or so
             # i'm not sure why, but this keeps the program from halting
             print('streaming ended due to error')
+            time.sleep(120)
             self.start_stream()
 
     def bad_translation(self, text):
