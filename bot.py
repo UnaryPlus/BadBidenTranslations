@@ -44,7 +44,7 @@ class Bot(tweepy.Stream):
 
         try:
             time.sleep(120)
-            reply = self.api.update_status(reply_text, tweet.id)
+            reply = self.api.update_status(reply_text, in_reply_to_status_id=tweet.id)
             self.api.retweet(reply.id)
             self.logger.info('Reply was successful')
         except:
