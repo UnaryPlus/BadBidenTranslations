@@ -3,7 +3,7 @@ import googletrans
 import logging
 import random
 import time
-import sys
+import os
 import re
 
 class Bot(tweepy.Stream):
@@ -51,10 +51,10 @@ class Bot(tweepy.Stream):
             self.logger.warning('Could not reply due to error')
 
 def main():
-    key = sys.argv[1]
-    secret_key = sys.argv[2]
-    token = sys.argv[3]
-    secret_token = sys.argv[4]
+    key = os.environ.get('KEY')
+    secret_key = os.environ.get('SECRET_KEY')
+    token = os.environ.get('TOKEN')
+    secret_token = os.environ.get('SECRET_TOKEN')
 
     accounts = ['1349149096909668363', '939091']
     bot = Bot(key, secret_key, token, secret_token, accounts)
