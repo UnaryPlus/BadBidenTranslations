@@ -5,19 +5,19 @@ import random
 import time
 import os
 import re
+import sys
 
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
-        logging.basicConfig(level=logging.INFO)
+        self.start_time = time.time()
+        self.accounts = accounts
         self.logger = logging.getLogger()
         self.translator = googletrans.Translator()
 
         auth = tweepy.OAuthHandler(key, secret_key)
         auth.set_access_token(token, secret_token)
-
         self.api = tweepy.API(auth)
         self.api.verify_credentials()
-        self.accounts = accounts
 
         super().__init__(key, secret_key, token, secret_token)
         self.filter(follow=self.accounts)
@@ -30,9 +30,12 @@ class Bot(tweepy.Stream):
         return text
 
     def on_status(self, tweet):
+        if(time.time() - self.start_time > 21600):
+            sys.exit()
+
         if str(tweet.author.id) not in self.accounts: return
         if hasattr(tweet, 'retweeted_status'): return
-        if len(tweet.text) < 24: return
+        if len(tweet.text) < 64: return
 
         try: tweet_text = tweet.extended_tweet['full_text']
         except: tweet_text = tweet.text
@@ -47,6 +50,7 @@ class Bot(tweepy.Stream):
             reply = self.api.update_status(reply_text, in_reply_to_status_id=tweet.id)
             self.api.retweet(reply.id)
             self.logger.info('Reply was successful')
+            sys.exit()
         except:
             self.logger.warning('Could not reply due to error')
 
