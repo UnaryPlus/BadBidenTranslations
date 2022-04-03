@@ -71,11 +71,9 @@ class Bot(tweepy.Stream):
 
         self.screenshot(tweet)
 
-        try:
-            #self.api.update_status_with_media(translation, 'screenshot.png')
-            sys.exit()
-        except:
-            self.logger.warning('Could not tweet')
+        try: self.api.update_status_with_media(translation, 'screenshot.png')
+        except: self.logger.warning('Could not tweet')
+        else: sys.exit()
 
 def main():
     key = os.environ.get('KEY')
