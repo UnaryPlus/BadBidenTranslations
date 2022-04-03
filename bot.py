@@ -15,8 +15,6 @@ from selenium.webdriver.chrome.service import Service
 
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
-        logging.basicConfig(level=logging.INFO)
-
         self.start_time = time.time()
         self.accounts = accounts
         self.logger = logging.getLogger()
