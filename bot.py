@@ -27,6 +27,7 @@ class Bot(tweepy.Stream):
 
         super().__init__(key, secret_key, token, secret_token)
         self.filter(follow=self.accounts)
+        self.logger.info('Began streaming')
 
     def bad_translation(self, text):
         languages = [random.choice(list(googletrans.LANGUAGES)) for i in range(5)]
