@@ -15,18 +15,16 @@ from selenium.webdriver.chrome.service import Service
 
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
-        self.start_time = time.time()
-        self.accounts = accounts
-        self.translator = googletrans.Translator()
-
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger()
+        self.translator = googletrans.Translator()
 
         auth = tweepy.OAuthHandler(key, secret_key)
         auth.set_access_token(token, secret_token)
         self.api = tweepy.API(auth)
         self.api.verify_credentials()
 
+        self.accounts = accounts
         super().__init__(key, secret_key, token, secret_token)
         self.filter(follow=self.accounts)
 
@@ -61,15 +59,13 @@ class Bot(tweepy.Stream):
         finally: driver.quit()
 
     def on_status(self, tweet):
-        if(time.time() - self.start_time > 21600): sys.exit()
         if not self.valid_tweet(tweet): return
+        self.screenshot(tweet)
 
         original = self.get_text(tweet)
         translation = self.bad_translation(original)
         self.logger.info('Original: ' + original)
         self.logger.info('Translation: ' + translation)
-
-        self.screenshot(tweet)
 
         try: self.api.update_status_with_media(translation, 'screenshot.png')
         except: self.logger.warning('Could not tweet')
