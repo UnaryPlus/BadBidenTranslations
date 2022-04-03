@@ -17,8 +17,10 @@ class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
         self.start_time = time.time()
         self.accounts = accounts
-        self.logger = logging.getLogger()
         self.translator = googletrans.Translator()
+
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger()
 
         auth = tweepy.OAuthHandler(key, secret_key)
         auth.set_access_token(token, secret_token)
