@@ -55,7 +55,7 @@ class Bot(tweepy.Stream):
             element = WebDriverWait(driver, 12).until(
                 EC.presence_of_element_located((By.TAG_NAME, 'article')))
             element.screenshot('screenshot.png')
-        except Exception, e: raise e
+        except Exception as e: raise e
         finally: driver.quit()
 
     def on_status(self, tweet):
