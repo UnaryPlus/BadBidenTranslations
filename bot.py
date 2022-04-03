@@ -7,6 +7,12 @@ import os
 import re
 import sys
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
         self.start_time = time.time()
@@ -29,30 +35,45 @@ class Bot(tweepy.Stream):
             text = self.translator.translate(text, dest=lang).text
         return text
 
+    def valid_tweet(self, tweet):
+        return (
+            str(tweet.author.id) in self.accounts
+            and not hasattr(tweet, 'retweeted_status')
+            and len(tweet.text) >= 64
+        )
+
+    def get_text(self, tweet):
+        try: text = tweet.extended_tweet['full_text']
+        except: text = tweet.text
+        return re.sub(r'http\S+', '', text)
+
+    def screenshot(self, tweet):
+        service = Service(executable_path='./chromedriver')
+        driver = webdriver.Chrome(service=service)
+        try:
+            driver.get('https://twitter.com/twitter/statuses/' + str(tweet.id))
+            element = WebDriverWait(driver, 12).until(
+                EC.presence_of_element_located((By.TAG_NAME, 'article')))
+            element.screenshot('screenshot.png')
+        except Exception, e: raise e
+        finally: driver.quit()
+
     def on_status(self, tweet):
-        if(time.time() - self.start_time > 21600):
-            sys.exit()
+        if(time.time() - self.start_time > 21600): sys.exit()
+        if not self.valid_tweet(tweet): return
 
-        if str(tweet.author.id) not in self.accounts: return
-        if hasattr(tweet, 'retweeted_status'): return
-        if len(tweet.text) < 64: return
+        original = self.get_text(tweet)
+        translation = self.bad_translation(original)
+        self.logger.info('Original: ' + original)
+        self.logger.info('Translation: ' + translation)
 
-        try: tweet_text = tweet.extended_tweet['full_text']
-        except: tweet_text = tweet.text
-        tweet_text = re.sub(r'http\S+', '', tweet_text)
-
-        reply_text = '@' + tweet.author.screen_name + ' ' + self.bad_translation(tweet_text)
-        self.logger.info('Tweet: ' + tweet_text)
-        self.logger.info('Reply: ' + reply_text)
+        self.screenshot(tweet)
 
         try:
-            time.sleep(120)
-            reply = self.api.update_status(reply_text, in_reply_to_status_id=tweet.id)
-            self.api.retweet(reply.id)
-            self.logger.info('Reply was successful')
+            self.api.update_status_with_media(translation, 'screenshot.png')
             sys.exit()
         except:
-            self.logger.warning('Could not reply due to error')
+            self.logger.warning('Could not tweet')
 
 def main():
     key = os.environ.get('KEY')
