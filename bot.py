@@ -13,6 +13,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 
+def screenshot(tweet):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.binary_location = os.environ.get("CHROME_BIN")
+
+    service = Service(executable_path=os.environ.get("CHROMEDRIVER_PATH"))
+    driver = webdriver.Chrome(options=options, service=service)
+    try:
+        driver.get('https://twitter.com/twitter/statuses/' + str(tweet.id))
+        element = WebDriverWait(driver, 12).until(
+            EC.presence_of_element_located((By.TAG_NAME, 'article')))
+        element.screenshot('screenshot.png')
+    except Exception as e: raise e
+    finally: driver.quit()
+
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
         logging.basicConfig(level=logging.INFO)
@@ -47,20 +64,9 @@ class Bot(tweepy.Stream):
         except: text = tweet.text
         return re.sub(r'http\S+', '', text)
 
-    def screenshot(self, tweet):
-        service = Service(executable_path='./chromedriver')
-        driver = webdriver.Chrome(service=service)
-        try:
-            driver.get('https://twitter.com/twitter/statuses/' + str(tweet.id))
-            element = WebDriverWait(driver, 12).until(
-                EC.presence_of_element_located((By.TAG_NAME, 'article')))
-            element.screenshot('screenshot.png')
-        except Exception as e: raise e
-        finally: driver.quit()
-
     def on_status(self, tweet):
         if not self.valid_tweet(tweet): return
-        self.screenshot(tweet)
+        screenshot(tweet)
 
         original = self.get_text(tweet)
         translation = self.bad_translation(original)
