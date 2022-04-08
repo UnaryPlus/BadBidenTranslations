@@ -13,6 +13,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 
+from PIL import Image
+
 def screenshot(tweet):
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
@@ -29,6 +31,11 @@ def screenshot(tweet):
         element.screenshot('screenshot.png')
     except Exception as e: raise e
     finally: driver.quit()
+
+    image = Image.open('screenshot.png')
+    width, height = image.size
+    image = image.crop((0, 0, width, height - 100))
+    image.save('screenshot.png') 
 
 class Bot(tweepy.Stream):
     def __init__(self, key, secret_key, token, secret_token, accounts):
