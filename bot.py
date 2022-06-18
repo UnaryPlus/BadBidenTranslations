@@ -1,3 +1,6 @@
+# (c) 2022 Owen Bechtel
+# License: MIT (see LICENSE file)
+
 import tweepy
 import googletrans
 import logging
