@@ -1,2 +1,2 @@
 # Bad Biden Translations
-A [Twitter bot](https://twitter.com/badbidentrans) that posts bad translations of the president's tweets. It uses google translate to convert the text into five random languages and then back into English. I'm not trying to make a political statement or anything, I just thought it would be funny.
+This is the source code for a Twitter bot which is now deactivated. It posted bad translations of the president's tweets by running them through google translate a bunch of times.
